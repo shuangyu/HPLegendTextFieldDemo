@@ -154,18 +154,17 @@
     _placeHolderLabel.text = placeHolder;
     _placeHolderLabel.backgroundColor = [UIColor clearColor];
     _placeHolderLabel.textColor = HP_LEGENDFIELD_NORMAL_COLOR;
-    _placeHolderLabel.minimumScaleFactor = 0.2;
     
     CGRect realRect = [placeHolder boundingRectWithSize:_inputField.frame.size
-                              options:NSStringDrawingUsesLineFragmentOrigin
-                           attributes:@{NSFontAttributeName : _placeHolderLabel.font}
-                              context:nil];
+                                                options:NSStringDrawingUsesLineFragmentOrigin
+                                             attributes:@{NSFontAttributeName : _placeHolderLabel.font}
+                                                context:nil];
     
     realRect.origin.x = _inputField.frame.origin.x;
     realRect.origin.y = (CGRectGetHeight(self.frame) - CGRectGetHeight(realRect)) * 0.5;
     
     _placeHolderLabel.frame = realRect;
-
+    
     [self insertSubview:_placeHolderLabel belowSubview:_inputField];
     
     _inputField.placeholder = nil;
@@ -228,11 +227,10 @@
         _lineMaskView.frame = toFrame_lineMaskView;
         _lineMaskView.center = _lineMaskViewCenter;
         _inputField.frame = toFrame_textField;
-
+        
     } completion:^(BOOL finished) {
         
     }];
-    
 }
 
 - (void)startLoseFocseAnimation
@@ -251,21 +249,67 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
-
     self.status = HPLegendTextFieldStatusFocused;
     
     if (!textField.text || textField.text.length == 0) {
         [self startGetFocseAnimation];
     }
+    
+    if ([_delegate respondsToSelector:@selector(textFieldShouldBeginEditing:)]) {
+        return [_delegate textFieldShouldBeginEditing:textField];
+    }
+    
     return TRUE;
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField
 {
     self.status = HPLegendTextFieldStatusNormal;
-
+    
     if (!textField.text || textField.text.length == 0) {
         [self startLoseFocseAnimation];
+    }
+    if ([_delegate respondsToSelector:@selector(textFieldShouldEndEditing:)]) {
+        return [_delegate textFieldShouldEndEditing:textField];
+    }
+    return TRUE;
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    if ([_delegate respondsToSelector:@selector(textFieldDidBeginEditing:)]) {
+        [_delegate textFieldDidBeginEditing:textField];
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    if ([_delegate respondsToSelector:@selector(textFieldDidEndEditing:)]) {
+        [_delegate textFieldDidEndEditing:textField];
+    }
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if ([_delegate respondsToSelector:@selector(textField:shouldChangeCharactersInRange:replacementString:)]) {
+        return [_delegate textField:textField shouldChangeCharactersInRange:range replacementString:string];
+    }
+    return TRUE;
+}
+
+- (BOOL)textFieldShouldClear:(UITextField *)textField
+{
+    if ([_delegate respondsToSelector:@selector(textFieldShouldClear:)]) {
+        return [_delegate textFieldShouldClear:textField];
+    }
+    return TRUE;
+}
+
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if ([_delegate respondsToSelector:@selector(textFieldShouldReturn:)]) {
+        return [_delegate textFieldShouldReturn:textField];
     }
     return TRUE;
 }

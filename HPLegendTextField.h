@@ -29,6 +29,7 @@ typedef enum {
 
 @interface HPLegendTextField : UIView<UITextFieldDelegate>
 
+@property (nonatomic, assign) id <UITextFieldDelegate> delegate;
 
 @property (nonatomic, assign) HPLegendTextFieldStatus status;
 

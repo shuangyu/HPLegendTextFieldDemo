@@ -35,6 +35,7 @@ typedef enum {
 
 @property (nonatomic, assign) HPLegendTextFieldStatus status;
 
-- (void)setText:(NSString *)text;
+@property (nonatomic, strong) NSString *placeHolder;
+@property (nonatomic, strong) NSString *text;
 
 @end

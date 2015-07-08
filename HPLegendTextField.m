@@ -5,6 +5,7 @@
 //  Created by hupeng on 15/6/24.
 //  Copyright (c) 2015年 hupeng. All rights reserved.
 
+
 #define HP_LEGENDFIELD_SELECT_COLOR [UIColor colorWithRed:53.0/255.0 green:183.0/255.0 blue:127.0/255.0 alpha:1.0]
 #define HP_LEGENDFIELD_NORMAL_COLOR [UIColor colorWithRed:149.0/255.0 green:149.0/255.0 blue:149.0/255.0 alpha:1.0]
 #define HP_LEGENDFIELD_ERROR_COLOR  [UIColor colorWithRed:242.0/255.0 green:109.0/255.0 blue:95.0/255.0 alpha:1.0]
@@ -38,7 +39,6 @@
             break;
         case HPLegendTextFieldStatusError:
             self.layer.borderColor = HP_LEGENDFIELD_ERROR_COLOR.CGColor;
-            [HPAnimationFactory applyWagAnimationToView:self];
             break;
         default:
             break;
@@ -79,9 +79,12 @@
             }];
             break;
         }
-        case HPLegendTextFieldStatusError:
+        case HPLegendTextFieldStatusError: {
+            UIImage *imageForRendering = [_originalImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            self.image = imageForRendering;
             self.tintColor = HP_LEGENDFIELD_ERROR_COLOR;
             break;
+        }
         default:
             break;
     }
@@ -120,6 +123,8 @@
     return self;
 }
 
+#pragma mark - properties
+
 - (void)setStatus:(HPLegendTextFieldStatus)status
 {
     if (_status == status) {
@@ -138,6 +143,25 @@
     _leftView.status   = _status;
     
     _inputField.textColor = status == HPLegendTextFieldStatusError ? HP_LEGENDFIELD_ERROR_COLOR : [UIColor blackColor];
+}
+
+- (void)setText:(NSString *)text
+{
+    _inputField.text = text;
+    
+    if (text.length == 0) {
+        if (![_inputField isFirstResponder]) {
+            [self startLoseFocseAnimation];
+        }
+    } else {
+        [self startGetFocseAnimation];
+    }
+}
+
+- (void)setPlaceHolder:(NSString *)placeHolder
+{
+    _inputField.placeholder = placeHolder;
+    [self refreshPlaceHolderLabel];
 }
 
 - (void)updateInterface
@@ -169,12 +193,10 @@
     _leftView.contentMode = UIViewContentModeScaleToFill;
 }
 
-- (void)refreshPlaceHolderLabel {
-    NSString *placeHolder = _inputField.placeholder;
-    if (!placeHolder) return;
-    
+- (void)refreshPlaceHolderLabel
+{
+    NSString *placeHolder = NSLocalizedString(_inputField.placeholder, nil);
     _inputField.placeholder = nil;
-    
     _placeHolderLabel.text = placeHolder;
     CGRect realRect = [placeHolder boundingRectWithSize:_inputField.frame.size
                                                 options:NSStringDrawingUsesLineFragmentOrigin
@@ -188,10 +210,7 @@
 
 - (void)startGetFocseAnimation
 {
-    
     if (!CGAffineTransformEqualToTransform(_placeHolderLabel.transform, CGAffineTransformIdentity)) return;
-    
-    [self refreshPlaceHolderLabel];
     
     if (CGRectIsEmpty(_leftViewFrame)) {
         _leftViewFrame    = _leftView.frame;
@@ -266,17 +285,7 @@
 }
 
 
-- (void)setText:(NSString *)text {
-    _inputField.text = text;
-    
-    if (text.length == 0) {
-        if (![_inputField isFirstResponder]) {
-            [self startLoseFocseAnimation];
-        }
-    } else {
-        [self startGetFocseAnimation];
-    }
-}
+
 
 #pragma mark - UITextFieldDelegate
 
